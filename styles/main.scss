@@ -121,3 +121,18 @@ a.hero-cta{
         color: $black-primary;
     }
 }
+
+/* Highlight styles */
+
+.more-info-code{
+    font-size: 1.14em; //16px
+
+    .hljs.hljs-line-numbers{
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+
+    .hljs.javascript{
+        border-left: 0;
+    }
+}

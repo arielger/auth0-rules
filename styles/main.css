@@ -119,4 +119,13 @@ a.hero-cta {
     font-weight: 600;
     color: rgba(0, 0, 0, 0.87); }
 
+/* Highlight styles */
+.more-info-code {
+  font-size: 1.14em; }
+  .more-info-code .hljs.hljs-line-numbers {
+    padding-left: 25px;
+    padding-right: 25px; }
+  .more-info-code .hljs.javascript {
+    border-left: 0; }
+
 /*# sourceMappingURL=main.css.map */

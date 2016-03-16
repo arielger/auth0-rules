@@ -67,16 +67,37 @@
       <h3 class="section-title">How do I use it?</h3>
       <p class="section-body">Just create a new rule in the Auth0 dashboard,
       and copy the following code replacing the placeholders with the appropriate values.</p>
-      <pre>
-        <code class="more-info-code">
-          function(user, context, callback){
-            var FULLCONTACT_KEY = 'YOUR FULLCONTACT API KEY';
-            var SLACK_HOOK = 'YOUR SLACK HOOK URL';
+      <pre class="more-info-code hl"><code>function(user, context, callback){
+  var FULLCONTACT_KEY = 'YOUR FULLCONTACT API KEY';
+  var SLACK_HOOK = 'YOUR SLACK HOOK URL';
 
-            var slack = require('slack-notify')(SLACK_HOOK);
-          }
-        </code>
-      </pre>
+  var slack = require('slack-notify')(SLACK_HOOK);
+
+  // skip if no email
+  if(!user.email) return callback(null, user, context);
+  // skip if fullcontact metadata is already here
+  if(user.user_metadata && user.user_metadata.fullcontact) return callback(null, user, context);
+  return({
+    url: 'https://api.fullcontact.com/v2/person.json',
+    qs: {
+      email: user.email,
+      apiKey: FULLCONTACT_KEY
+    }
+  }, function (error, response, body){
+    if(error || (response && response.statusCode !== 200)){
+
+      slack.alert({
+        channel: '#slack_channel',
+        text: 'Fullcontact API Error',
+        fields: {
+          error: error ? error.toString() : (response ? response.statusCode + ' ' + body : null)
+        }
+      })
+
+      return callback(null, user, context);
+    }
+  })
+}</code></pre>
     </div>
   </section>
   <section class="section">
@@ -257,6 +278,8 @@
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script src="http://cdn.auth0.com/js/lock-8.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+  <script src="scripts/highlight-lines.js"></script>
+  <script src="scripts/retina.js"></script>
 
   <script type="text/javascript">
   var lock = new Auth0Lock('zEYfpoFzUMEzilhkHilcWoNkrFfJ3hAI', 'auth0.auth0.com');
@@ -274,7 +297,18 @@
     });
   };
 
-  hljs.initHighlightingOnLoad();
+  hljs.configure({
+    tabReplace: '  ',
+    classPrefix: ''     // don't append class prefix
+                        // … other options aren't changed
+  });
+  hljs.initHighlighting();
+
+  $('pre.hl code').each(function(i, block) {
+    hljs.highlightBlock(block);
+  });
+
+  hljs.initLineNumbersOnLoad();
 
   </script>
 </body>
